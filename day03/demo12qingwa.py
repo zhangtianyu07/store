@@ -4,7 +4,7 @@ num2 = 0
 
 while True:
     num1 = num1 - 3
-    if num1 > 0:
+    if num1 >= 0:
         num1 = num1 + 2
         num2 = num2 + 1
     else:
