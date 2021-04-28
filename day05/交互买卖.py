@@ -13,7 +13,10 @@ shop = [
     ["恐怖机器人",500],
     ["尤里",800],     #9
 ]
-
+shop1 = [shop[1][0],shop[1][1] / 2]
+shop2 = [shop[7][0],shop[7][1] / 600 * 300]
+print(shop1)
+print(shop2)
 #资金
 money = input("请输入您的资金：")
 money = int(money)
@@ -30,10 +33,10 @@ tqtk = 0
 
 if 1 <= yhq <= 10:
     shop[7][1] = shop[7][1] / 600 * 300
-
+    kc = 0
 else:
     shop[1][1] = shop[1][1] / 2
-
+    tqtk = 0
 while True:
     for index,value in enumerate(shop):
         print(index,"    ",value)
@@ -49,7 +52,7 @@ while True:
                 if kc < 2:
                     if money >= shop[num][1]:
                         money = money - shop[num][1]
-                        shopcar.append(shop[num])
+                        shopcar.append(shop2)
                         print("购买成功！！！")
                         print("您的当前余额为：",money)
                         shop[7][1] = shop[7][1] * 2
@@ -79,7 +82,7 @@ while True:
                 if tqtk < 2:
                     if money >= shop[num][1]:
                         money = money - shop[num][1]
-                        shopcar.append(shop[num])
+                        shopcar.append(shop1)
                         print("购买成功！！！")
                         print("您的当前余额为：",money)
                         shop[1][1] = shop[1][1] * 2
