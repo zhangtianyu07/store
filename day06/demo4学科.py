@@ -17,13 +17,21 @@ math = ['小黄','小李','小王','小杨','小周']
 english = ['小杨','小张','小吴','小冯','小周']
 
 #求选课学生总共有多少人
+c = 0
+list = []
 for i in chinese:
-    c = c + 1
+    if i not in list:
+        list.append(i)
+        c = c + 1
 for i in math:
-    m = m + 1
+    if i not in list:
+        list.append(i)
+        c = c + 1
 for i in english:
-    e = e + 1
-print("选课学生总共有",c+m+e,"人")
+    if i not in list:
+        list.append(i)
+        c = c + 1
+print("选课学生总共有",c,"人")
 
 #求只选了第一个学科的人的数量和对应的名字
 for i in chinese:
