@@ -1,5 +1,6 @@
 import random
-import pymysql
+from DBUtils import update
+from DBUtils import select
 # 1. 空的银行的库 ： 100个
 users = {}
 
@@ -22,37 +23,25 @@ def welcome():
 # 银行的开户逻辑
 def bank_addUser(account,username,password,country,province,street,door):
     #查询数据库中是否存在账号
-    con = pymysql.connect(host="localhost",user="root",password="root",database="icbc")
-    cursor = con.cursor()
-    sql = "select account from bank"
-    num = cursor.execute(sql)
-    data = cursor.fetchall()
-    con.commit()
-    cursor.close()
-    con.close()
+
+    sql = "select count(*) from bank"
+    data = select(sql,[])  # ((72),(),())
+    print(data)
     # 判断是否已满
-    if num >= 100:
+    if data[0][0] >= 100:
         return 3
 
+    sql1 = "select * from bank where account = %s"
+    data1 = select(sql1,account)
     # 判断是否存在
-    if account in data:
+    if len(data1) != 0:
         return 2
 
-    #正常开户
-    con = pymysql.connect(host="localhost",user="root",password="root",database="icbc")
-    # 通过连接来创建控制台
-    cursor = con.cursor()
     # 准备一条sql语句
-    sql = "insert into bank  values(%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-    param = [account,username,password,country,province,street,door,0,bank_name]
+    sql2 = "insert into bank  values(%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+    param2 = [account,username,password,country,province,street,door,0,bank_name]
     # 让控制台执行sql
-    num = cursor.execute(sql,param)  # (sql模板，param实际的填充参数)
-    print("共",num,"行数据受到影响！")
-    # 提交数据
-    con.commit()   # 将数据真正的写到数据库里
-    # 关闭资源
-    cursor.close()
-    con.close()
+    update(sql2,param2)
     return 1
 
 
@@ -89,30 +78,19 @@ def addUser():
 #银行的存钱逻辑
 def bank_deposit(account,money):
     #判断有无账户存在
-    con = pymysql.connect(host="localhost",user="root",password="root",database="icbc")
-    cursor = con.cursor()
-    sql = "select * from bank where bank.account = %s"
-    param = [account]
-    cursor.execute(sql,param)
-    data = cursor.fetchall()
-    num = len(data)
-    con.commit()
-    cursor.close()
-    con.close()
-    if num == 1:
-        con = pymysql.connect(host="localhost",user="root",password="root",database="icbc")
-        cursor = con.cursor()
-        sql = "update bank set money = money + %s where account = %s"
-        param = [money,account]
-        cursor.execute(sql,param)
-        con.commit()
+
+    sql3 = "select count(*) from bank where bank.account = %s"
+    param3 = [account]
+    data3 = select(sql3,param3)
+
+    if data3[0][0] == 1:
+        sql4 = "update bank set money = money + %s where account = %s"
+        param4 = [money,account]
+        update(sql4,param4)
         return True
     else:
         # print("账户不存在！！！")
         return False
-    cursor.close()
-    con.close()
-
 
 
 #用户存钱方法
@@ -141,42 +119,40 @@ def deposit():
 #银行的取钱逻辑
 def bank_withdraw(account,password,withdraw_money):
     #数据库
-    con = pymysql.connect(host="localhost",user="root",password="root",database="icbc")
-    cursor = con.cursor()
-    sql = "select * from bank where bank.account = %s"
-    param = [account]
-    cursor.execute(sql,param)
-    data = cursor.fetchall()
-    num = len(data)
 
-    if num == 1:#存在
-        sql = "select * from bank where bank.account = %s and bank.password = %s"
-        param = [account,password]
-        num = cursor.execute(sql,param)
+    sql5 = "select count(*) from bank where bank.account = %s"
+    param5 = [account]
+    data5 = select(sql5,param5)
 
-        if num == 1:
-            sql = "update bank set bank.money =bank.money - %s where bank.money >= %s"
-            param = [withdraw_money,withdraw_money]
-            num = cursor.execute(sql,param)
-            con.commit()
-            print("取钱成功！")
-            if num == 1:
+    if data5[0][0] == 1:#存在
+        sql6 = "select count(*) from bank where bank.account = %s and bank.password = %s"
+        param6 = [account,password]
+        data6 = select(sql6,param6)
+
+        if data6[0][0] == 1:
+            sqldx = "select * from bank where bank.account = %s"
+            paramdx = [account]
+            datadx = select(sqldx,paramdx)
+            num = datadx[0][7]
+            if num >= withdraw_money:
+                sql7 = "update bank set bank.money =bank.money - %s where bank.money >= %s"
+                param7 = [withdraw_money,withdraw_money]
+                data7 = update(sql7,param7)
                 return 0
-            if num == 0:
+            else:
                 return 3
         else:
             return 2
     else:
         return 1
-    con.close()
-    cursor.close()
+
 
 #用户取钱的方法
 def withdraw():
 
     account = input("请输入您要取钱的账号：")
     password = input("请输入您的密码:")
-    withdraw_money = input("请输入您要取出的金额为：")
+    withdraw_money = float(input("请输入您要取出的金额为："))
 
     status3 = bank_withdraw(account,password,withdraw_money)
 
@@ -203,25 +179,26 @@ def withdraw():
 
 #银行的转账逻辑
 def bank_ransferA(chu_account,ru_account,password,chu_money):
-    con = pymysql.connect(host="localhost",user="root",password="root",database="icbc")
-    cursor = con.cursor()
-    sql = "select account from bank where bank.account = %s or bank.account = %s"
-    param = [chu_account,ru_account]
-    num = cursor.execute(sql,param)
+    sql8 = "select count(account) from bank where bank.account = %s or bank.account = %s"
+    param8 = [chu_account,ru_account]
+    data8 = select(sql8,param8)
 
-    if num == 2:
-        sql = "select account from bank where bank.account = %s and bank.password = %s"
-        param = [chu_account,password]
-        num = cursor.execute(sql,param)
-        if num == 1:
-            sql = "update bank set bank.money = bank.money - %s where bank.account = %s"
-            param = [chu_money,chu_account]
-            num = cursor.execute(sql,param)
-            sql = "update bank set bank.money = bank.money + %s where bank.account = %s"
-            param1 = [chu_money,ru_account]
-            num1 = cursor.execute(sql,param1)
-            con.commit()
-            if num == 1 and num1 == 1:
+    if data8[0][0] == 2:
+        sql9 = "select count(account) from bank where bank.account = %s and bank.password = %s"
+        param9 = [chu_account,password]
+        data9 = select(sql9,param9)
+        if data9[0][0] == 1:
+            sqldx1 = "select * from bank where bank.account = %s"
+            paramdx1 = [chu_account]
+            datadx = select(sqldx1,paramdx1)
+            num1 = datadx[0][7]
+            if num1 >= chu_money:
+                sql10 = "update bank set bank.money = bank.money - %s where bank.account = %s"
+                param10 = [chu_money,chu_account]
+                update(sql10,param10)
+                sql11 = "update bank set bank.money = bank.money + %s where bank.account = %s"
+                param11 = [chu_money,ru_account]
+                update(sql11,param11)
                 return 0
             else:
                 return 3
@@ -229,8 +206,6 @@ def bank_ransferA(chu_account,ru_account,password,chu_money):
             return 2
     else:
         return 1
-    con.close()
-    cursor.close()
 
 
 #用户转账方法
@@ -238,7 +213,7 @@ def ransferA():
     chu_account = input("请输入转出的账号：")
     ru_account = input("请输入转入的账号：")
     password = input("请输入您的密码:")
-    chu_money = input("请输入您要转出的金额为：")
+    chu_money = float(input("请输入您要转出的金额为："))
 
     status3 = bank_ransferA(chu_account,ru_account,password,chu_money)
 
@@ -264,50 +239,42 @@ def ransferA():
 
 #银行的查询逻辑
 def bank_inquire(account,password):
-    con = pymysql.connect(host="localhost",user="root",password="root",database="icbc")
-    cursor = con.cursor()
-    sql = "select * from bank where bank.account = %s"
-    param = [account]
-    num = cursor.execute(sql,param)
-    if num == 1:
-        sql = "select * from bank where bank.account = %s and bank.password = %s"
-        param = [account,password]
-        num = cursor.execute(sql,param)
+    sql12 = "select count(*) from bank where bank.account = %s"
+    param12 = [account]
+    data12 = select(sql12,param12)
+    if data12[0][0] == 1:
+        sql13 = "select count(*) from bank where bank.account = %s and bank.password = %s"
+        param13 = [account,password]
+        data13 = select(sql13,param13)
 
-        if num == 1:
+        if data13[0][0] == 1:
             return 0
         else:
             return 2
     else:
         return 1
-    con.close()
-    cursor.close()
+
 
 #用户的查询方法
 def inquire():
     account = input("请输入您要查询的账号：")
     password = input("请输入您的密码:")
-
     status4 = bank_inquire(account,password)
 
     if status4 == 0:
-        con = pymysql.connect(host="localhost",user="root",password="root",database="icbc")
-        cursor = con.cursor()
-        sql = "select * from bank where bank.account = %s"
-        param = [account]
-        cursor.execute(sql,param)
-        data = cursor.fetchall()
-        con.commit()
-        for i in data:
-            account = data[0][0]
-            username = data[0][1]
-            password = data[0][2]
-            country = data[0][3]
-            province = data[0][4]
-            street = data[0][5]
-            door = data[0][6]
-            money = data[0][7]
-            bank_name = data[0][8]
+        sql14 = "select * from bank where bank.account = %s"
+        param14 = [account]
+        data14 = select(sql14,param14)
+        for i in data14:
+            account = data14[0][0]
+            username = data14[0][1]
+            password = data14[0][2]
+            country = data14[0][3]
+            province = data14[0][4]
+            street = data14[0][5]
+            door = data14[0][6]
+            money = data14[0][7]
+            bank_name = data14[0][8]
 
             print("当前账号信息：")
             info = '''
@@ -326,8 +293,7 @@ def inquire():
             '''
 
             print(info % (account,username,password,country,province,street,door,money,bank_name))
-        cursor.close()
-        con.close()
+
     if status4 == 1:
         print("该用户不存在!!!")
 
