@@ -265,7 +265,7 @@ def ransferA():
 #银行的查询逻辑
 def bank_inquire(account,password):
     con = pymysql.connect(host="localhost",user="root",password="root",database="icbc")
-    cursor = con.cursor(pymysql.cursors.DictCursor)
+    cursor = con.cursor()
     sql = "select * from bank where bank.account = %s"
     param = [account]
     num = cursor.execute(sql,param)
@@ -275,8 +275,6 @@ def bank_inquire(account,password):
         num = cursor.execute(sql,param)
 
         if num == 1:
-            data = cursor.fetchall()
-            print(data)
             return 0
         else:
             return 2
@@ -293,24 +291,43 @@ def inquire():
     status4 = bank_inquire(account,password)
 
     if status4 == 0:
-        print("当前账号信息：")
-        info = '''
-            ------------个人信息----------------
-            当前当前账号：%s,
-            用户名：%s,
-            取款密码：%s,
-            地址信息：
-                国家：%s,
-                省份：%s,
-                街道：%s,
-                门牌号：%s,
-            余额：%s,
-            开户行：%s
-            -----------------------------------
-        '''
+        con = pymysql.connect(host="localhost",user="root",password="root",database="icbc")
+        cursor = con.cursor()
+        sql = "select * from bank where bank.account = %s"
+        param = [account]
+        cursor.execute(sql,param)
+        data = cursor.fetchall()
+        con.commit()
+        for i in data:
+            account = data[0][0]
+            username = data[0][1]
+            password = data[0][2]
+            country = data[0][3]
+            province = data[0][4]
+            street = data[0][5]
+            door = data[0][6]
+            money = data[0][7]
+            bank_name = data[0][8]
 
-        # print(info % (account,users[account]["username"],password,users[account]["country"],users[account]["province"],users[account]["street"],users[account]["door"],users[account]["money"],users[account]["bank_name"]))
+            print("当前账号信息：")
+            info = '''
+                ------------个人信息----------------
+                当前当前账号：%s,
+                用户名：%s,
+                取款密码：%s,
+                地址信息：
+                    国家：%s,
+                    省份：%s,
+                    街道：%s,
+                    门牌号：%s,
+                余额：%s,
+                开户行：%s
+                -----------------------------------
+            '''
 
+            print(info % (account,username,password,country,province,street,door,money,bank_name))
+        cursor.close()
+        con.close()
     if status4 == 1:
         print("该用户不存在!!!")
 
