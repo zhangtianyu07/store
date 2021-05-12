@@ -1,0 +1,23 @@
+#用户类
+class User:
+    __account = None
+    __username = None
+    __password = None
+    __address = None
+
+    def setUserID(self,account):
+        self.__account=account
+    def getUserID(self):
+        return self.__account
+    def setUsername(self,username):
+        self.__username=username
+    def getUsername(self):
+        return self.__username
+    def setPassword(self,password):
+        self.__password=password
+    def getPassword(self):
+        return self.__password
+    def setAddress(self,address):
+        self.__address=address
+    def getAddress(self):
+        return self.__address
