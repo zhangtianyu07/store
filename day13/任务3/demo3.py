@@ -1,18 +1,25 @@
 # coding=gbk
 import random
 #商品
-shop = [
-    ["黑鹰战机",1500], #0
-    ["天启坦克",3000], #1
-    ["核潜艇",2000],
-    ["乌贼战舰",1000],
-    ["自爆卡车",1500],
-    ["雇佣兵",200],
-    ["猎犬",100],
-    ["采矿车",1200],
-    ["恐怖机器人",500],
-    ["尤里",800],     #9
-]
+import xlrd
+
+shop = []
+
+#获取工作簿
+gzb = xlrd.open_workbook(filename="D:\LTpython\day13\任务3\库.xlsx",encoding_override=True)
+
+#获取选项卡
+xxk = gzb.sheet_by_name("Sheet1")
+
+#获取行，获取列
+rows = xxk.nrows #多少行
+clos = xxk.ncols #多少列
+
+for i in range(rows):
+    shop.append(xxk.row_values(i))
+
+for i in shop:
+    print(i)
 shop1 = [shop[1][0],shop[1][1] / 2]
 shop2 = [shop[7][0],shop[7][1] / 600 * 300]
 
@@ -152,3 +159,4 @@ for index,value in enumerate(shopcar):
 print("您的当前余额为：",money)
 print("您本次消费累计积分：",(money1 - money)/10)
 print("【欢迎下次光临！！！】")
+

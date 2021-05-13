@@ -3,8 +3,7 @@ import xlrd
 from DBUtils import Mysql
 
 ku = []
-ku1 = []
-ku2 = []
+
 #读取
 wb = xlrd.open_workbook(filename="去往数据库.xlsx",encoding_override=True)
 
