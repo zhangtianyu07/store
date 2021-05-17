@@ -20,6 +20,10 @@ class Newphone(Oidphone):
     def call(self):
         print("品牌为：",self.getOidphone(),"的手机很好用...")
 
+class Test:
+    oid = Oidphone()
+    oid.setOidphone("🍎")
+
 new = Newphone()
 new.setOidphone("🍎")
 new.ringup("🍐")

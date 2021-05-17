@@ -38,7 +38,7 @@ class Cooksonson(Cookson):
         print("炒饭！！！")
 
 #测试类
-class Test(Cooksonson):
+class Test:
     cook = Cook()
     cook.setName("张三")
     cook.setAge("20")
