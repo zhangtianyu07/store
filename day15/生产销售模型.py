@@ -21,7 +21,7 @@ class Timerun(threading.Thread):
     def run(self) -> None:
         global sj
         while True:
-            if sj < 10:
+            if sj < 301:
                 time.sleep(1)
                 sj = sj + 1
             else:
@@ -34,7 +34,7 @@ class Cook(threading.Thread):
     def run(self) -> None:
         global lan
         global num1
-        while sj < 10:
+        while sj < 300:
             while lan < 300:
                 lan = lan + 1
                 num1 = num1 + 1
@@ -52,7 +52,7 @@ class Customer(threading.Thread):
     def run(self) -> None:
         global lan
         global num2
-        while sj < 10:
+        while sj < 300:
             while lan > 0:
                 lan = lan - 1
                 num2 = num2 + 1
